@@ -1,95 +1,87 @@
-#include <ctype.h> //biblioteca para inclusão do comando tolower, a fim de evitar qualquer tipo de erro na hora de recomeçar ou terminar do jogo =D
-#include <locale.h> //biblioteca responsável pelo controle de acentos =D
+#include <ctype.h> //biblioteca para inclusï¿½o do comando tolower, a fim de evitar qualquer tipo de erro na hora de recomeï¿½ar ou terminar do jogo =D
+#include <locale.h> //biblioteca responsï¿½vel pelo controle de acentos =D
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> //biblioteca para os comandosSleep();
 #include <windows.h>
 #include <string.h> //biblioteca de string
 
-void desenho(){//função de tipo void que exibe o desenho de um navio
-    printf("         o     \n");
-    printf("          o  _\n");
-    printf("            | |\n");
-    printf("       .___/   \\___________\n");
-    printf("       |    O    O   O     /\n");
-    printf("       |                  /\n");
-    printf("  ~~~~~\\_________________/~~~~~~ \n");
-}
+typedef struct jogador{
+  char nome[80];
+  int jogo;
+  int win;
+  int lose;
+}jogador;
 
-void tutorial()//função tipo void que contém instruções de como jogar o batalha naval
-{
-  printf("\n\tSelecione o lugar que você quer atirar usando linhas e colunas! Acerte os três navios e ganhe o jogo!");
-  printf("\nO tabuleiro consiste em '~' que representam a água. Quando um navio inimigo for derrubado, o símbolo 'o' apa-");
-  printf("\nrecerá, e quando errar aparecerá o símbolo 'X'. O jogador vence ao derrubar os 3 navios.\n");
-}
+void desenho();
+void tutorial();
+void aloca_jogador(jogador **j, int tam);
+void pega_dados(jogador *j);
+char continuar();
+int pega_nivel(jogador *j);
+void fim();
 
 int main() {
-  setlocale(LC_ALL, "");
-  int nivel, linha, coluna, navios, acertos=0, i, j, jogadas, n, lado, limp, win, lose, t, linhaA, colunaA;
-  char tabuleiro[5][5], nome[20], continuar, matriz[5][5], banana;
+  setlocale(LC_ALL, "Portuguese");
+  jogador *pj = NULL;
+  int nivel, linha, coluna, navios, acertos=0, i, j, jogadas, n, lado, limp, t, linhaA, colunaA;
+  char tabuleiro[5][5], matriz[5][5], banana;
   navios = 3;
 
-  printf("\n\t--Bem vindo ao Batalha Naval!--\t\n");
-  printf("\nQual o seu nome?\n");
-  gets(nome);//identificação do usuário
-
-  printf("\nGostaria de ver o tutorial de como jogar?('S' ou 'N')");//escolha para ver o tutorial ou não
-  scanf("%c", &banana);
-  banana = tolower(banana);
-  if (banana == 's'){
-   tutorial();
+  aloca_jogador(&pj, 1);
+  pega_dados(pj);
+  printf("\nGostaria de ver o tutorial de como jogar?('S' ou 'N')");//escolha para ver o tutorial ou nÃ£o
+  banana = continuar();
+  if (banana == 's')
+  {
+    tutorial();
   }
-
-  win=0;
-  lose=0;
   do {
     do {
-      printf("\nOlá %s!! Escolha um nível de dificuldade:\nNível 1 (fácil)\nNível 2 (médio)\nNível 3 (difícil)\n", nome);
-      printf("\nInsira o nível:");
-      limp = scanf("%d", &nivel);
-      fflush(stdin);
-      if (limp==0)
-      nivel=4;
-      // seleção de dificuldade para o jogador =D
-      if (nivel > 3 || nivel < 1) {
-        printf("\nOps, parece que o nível selecionado não existe ;__;\n");
-        printf("Aguarde 5 segundos e tente novamente com uma das três opções\n");
+      nivel = pega_nivel(pj); // seleÃ§Ã£o de dificuldade para o jogador =D
+      if (nivel > 3 || nivel < 1) 
+      {
+        printf("\nOps, parece que o nivel selecionado nao existe ;__;\n");
+        printf("Aguarde 5 segundos e tente novamente com uma das tres opcoes\n");
         Sleep(5000);
         system("cls");
-        // condição para caso o jogador insira uma dificuldade que não seja
-        // existente
+        /* condiÃ§Ã£o para caso o jogador insira uma dificuldade que nÃ£o seja
+        existente*/
       }
     } while (nivel > 3 || nivel < 1);
 
-    if (nivel == 1) { //diferentes mensagens que aparecerão na seleção de níveis
-                      //junto a declaração das variáveis que representam linhas, colunas e jogadas totais
-      printf("\nVocê escolheu o nível Fácil... Mamão com açúcar!\n");
-      i = 2;
-      j = 2;
-      n = 5;
-    } else if (nivel == 2) {
-      printf("\nVocê escolheu o nível Médio... Oloko meu!\n");
-      i = 3;
-      j = 3;
-      n = 7;
-    } else if (nivel == 3) {
-      printf("\nVocê escolheu o nível Difícil... Que a força esteja com você!!!\n");
-      i = 5;
-      j = 5;
-      n = 9;
+    switch (nivel)
+    {
+      case 1:
+        printf("\nVoce escolheu o nivel Facil... Mamao com acucar!\n");
+        i = 2;
+        j = 2;
+        n = 5;
+        Sleep(2000);
+        break;
+      case 2:
+        printf("\nVoce escolheu o nivel Medio... Oloko meu!\n");
+        i = 3;
+        j = 3;
+        n = 7;
+        Sleep(2000);
+        break;;
+      case 3:
+        printf("\nVoce escolheu o nivel Dificil... Que a forca esteja com voce!!!\n");
+        i = 5;
+        j = 5;
+        n = 9;
+        Sleep(2000);
+        break;
     }
-
     system("cls");
-    printf("\t\tVocê está no nível %d\n\n", nivel);
+    printf("\t\tVoce esta no nivel %d\n\n", nivel);
 
-////////////
-
-
-for(linha=0;linha<=i;linha++)//tabuleiro de informação(para realizar a comparação)
+for(linha=0;linha<=i;linha++)//tabuleiro de informaÃ§Ã£o(para realizar a comparaÃ§Ã£o)
     for(coluna=0;coluna<=j;coluna++)
         matriz[linha][coluna]='~';
 
-for(navios=0; navios<3; navios++)//definição das bombas no tabuleiro de informação
+for(navios=0; navios<3; navios++)//definiÃ§Ã£o das bombas no tabuleiro de informaÃ§Ã£o
     matriz[rand()%i][rand()%j]='*';
 
 for(linha=0;linha<=i;linha++)//tabuleiro que aparece pro jogador
@@ -117,12 +109,12 @@ for(jogadas=0;jogadas<n;jogadas++){
     fflush(stdin);
     if (limp==0)
       nivel=4;
-    if (linha>i||linha<0){//condição caso o jogador insira uma linha não existente
-      printf("\nOps, parece que essa linha não existe\n");
+    if (linha>i||linha<0){//condiÃ§Ã£o caso o jogador insira uma linha nÃ£o existente
+      printf("\nOps, parece que essa linha nao existe\n");
       printf("Tente novamente em 2 segundos\n");
       Sleep(2000);
     }
-    }while(linha>i||linha<0);
+    }while(linha>i || linha<0);
 
   do{
     printf("Coluna:");
@@ -130,24 +122,27 @@ for(jogadas=0;jogadas<n;jogadas++){
     fflush(stdin);
     if (limp==0)
       nivel=4;
-    if (coluna>j||coluna<0){//condiçao caso o jogador insira uma coluna não existente
-      printf("\nOps, parece que essa coluna não existe\n");
+    if (coluna>j||coluna<0){//condiÃ§ao caso o jogador insira uma coluna nÃ£o existente
+      printf("\nOps, parece que essa coluna nao existe\n");
       printf("Tente novamente em 2 segundos\n");
       Sleep(2000);
     }
     }while(coluna>j||coluna<0);
 
-    if(tabuleiro[linha][coluna]==matriz[linha][coluna]){
-      tabuleiro[linha][coluna]='X';//se o usuário erra, atribui 'X' àquela casa
-      }
+    if(tabuleiro[linha][coluna]==matriz[linha][coluna])
+    {
+      tabuleiro[linha][coluna]='X';//se o usuÃ¡rio erra, atribui 'X' Ã quela casa
+    }
 
-    else if(tabuleiro[linha][coluna]!=matriz[linha][coluna] && tabuleiro[linha][coluna]!='X'){
+    else if(tabuleiro[linha][coluna]!=matriz[linha][coluna] && tabuleiro[linha][coluna]!='X')
+    {
       tabuleiro[linha][coluna]='o';
       acertos++;
-      printf("\nacertos: %d\n", acertos);//se o jogador acerta, atribui 'o' àquela casa
-      }
+      printf("\nacertos: %d\n", acertos);//se o jogador acerta, atribui 'o' Ã quela casa
+    }
 
-  if(acertos==3){
+    if(acertos==3)
+    {
     jogadas=n-1;
     }
 
@@ -167,43 +162,104 @@ printf(" \n\t 0 ");
     printf("\n");
     }
 
-    printf("\nPressione ENTER para continuar\n");//mensagem exibida no fim da rodada para ir ao próximo processo
+    printf("\nPressione ENTER para continuar\n");//mensagem exibida no fim da rodada para ir ao prï¿½ximo processo
     getchar();
 
     if (acertos >= 3) {
       system("cls");
-      printf("\nParabéns, você derrubou todos os navios\n");//mensagem exibida quando o jogador vence
-      win++;
+      printf("\nParabens, voce derrubou todos os navios\n");//mensagem exibida quando o jogador vence
+      pj->win++;
     } else if (acertos < 3) {
       system("cls");
-      printf("\nQue pena, parece que não foi dessa vez ;__;\n");//mensagem exibida quando o jogador perde
-      lose++;
+      printf("\nQue pena, parece que nao foi dessa vez ;__;\n");//mensagem exibida quando o jogador perde
+      pj->lose++;
     }
 
-    acertos=0;//opção para o usuário decidir se quer continuar jogando ou não
+    acertos=0;//opï¿½ï¿½o para o usuï¿½rio decidir se quer continuar jogando ou nï¿½o
     printf("\n\t-----------------------------------\t\n");
     printf("\nDeseja jogar novamente?('S' ou 'N')");
-    scanf("\n%c", &continuar);
-    continuar = toupper(continuar);
-    printf("\n%c", continuar);
-    Sleep(3000);
+    banana = continuar();
     system("cls");
+  } while (banana == 's');
 
-  } while (continuar == 'S');
-
-  printf("%s, o resumo da sua sessão foi:\n", nome);
-  printf("%d VITÓRIAS :)\n%d DERROTAS ;-;\n", win, lose);
+  printf("%s, o resumo da sua sessÃ£o foi:\n", pj->nome);
+  printf("%d VITORIAS :)\n%d DERROTAS ;-;\n", pj->win, pj->lose);
   for(t=0;t<5;t++){
     printf(" . ");
     Sleep(1000);
   }
-  system("cls");//relatório que mostra os acontecimentos da partida
+  system("cls");//relatÃ³rio que mostra os acontecimentos da partida
+  fim();
 
+  return 0;
+}
+
+/*--------------------------FUNÃ‡Ã•ES-----------------------------*/
+
+void aloca_jogador(jogador ** j, int tam)
+{
+  if((*j=(jogador*)realloc(*j,tam*sizeof(jogador)))==NULL)
+  {
+    exit(1);
+  }
+}
+
+void pega_dados(jogador *j)
+{
+  printf("\n\t--Bem vindo ao Batalha Naval!--\t\n");
+  printf("\nQual o seu nome?\n");
+  gets(j->nome);//identificaÃ§Ã£o do usuÃ¡rio
+  fflush(stdin);
+  j->jogo = 0;
+  j->lose = 0;
+  j->win = 0;
+}
+
+char continuar()
+{
+  char banana;
+  scanf("%c", &banana);
+  fflush(stdin);
+  banana = tolower(banana);
+  return banana;
+}
+
+int pega_nivel(jogador *j)
+{
+  int nivel, limp;
+  printf("\nOla %s!! Escolha um nivel de dificuldade:\nNivel 1 (facil)\nNivel 2 (medio)\nNivel 3 (dificil)\n", j->nome);
+  printf("\nInsira o nivel:");
+  limp = scanf("%d", &nivel);
+  fflush(stdin);
+  if (limp==0)
+  {
+    nivel=4;
+  }
+  return nivel;
+}
+
+void desenho(){//funï¿½ï¿½o de tipo void que exibe o desenho de um navio
+    printf("         o     \n");
+    printf("          o  _\n");
+    printf("            | |\n");
+    printf("       .___/   \\___________\n");
+    printf("       |    O    O   O     /\n");
+    printf("       |                  /\n");
+    printf("  ~~~~~\\_________________/~~~~~~ \n");
+}
+
+void tutorial()//funï¿½ï¿½o tipo void que contï¿½m instruï¿½ï¿½es de como jogar o batalha naval
+{
+  printf("\n\tSelecione o lugar que vocÃª quer atirar usando linhas e colunas! Acerte os trÃªs navios e ganhe o jogo!");
+  printf("\nO tabuleiro consiste em '~' que representam a Ã¡gua. Quando um navio inimigo for derrubado, o sÃ­mbolo 'o' apa-");
+  printf("\nrecerÃ¡, e quando errar aparecerÃ¡ o sÃ­mbolo 'X'. O jogador vence ao derrubar os 3 navios.\n");
+}
+
+void fim()
+{
   printf("\n\tMuito Obrigado por jogar o Batalha Naval em C\n");
   printf("\n");
   desenho();
   printf("\n");
-  printf("-feito por:   André Ferreira Gonçalves\n              Leonardo B. A. Fonseca\n");//mensagem exibida na finalização do programa
-
-  return 0;
+  printf("-feito por:   AndrÃ© Ferreira GonÃ§alves\n              Leonardo B. A. Fonseca\n");//mensagem exibida na finalizaï¿½ï¿½o do programa
 }
